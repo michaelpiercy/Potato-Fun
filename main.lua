@@ -37,8 +37,8 @@ end
 
 print( "Goldy" )
 print( "Type:", goldy.type )              -- Golden
-print( "Super-Size Me:", goldy:grow(50) ) -- 50
-print( "Shrink to:", goldy:shrink(12) )   -- 51
+print( "Super-Size Me:", goldy:grow(50) ) -- 552
+print( "Shrink to:", goldy:shrink(12) )   -- 540
 print( goldy:eat() )                      -- Nom, Nom. All Gone
 print( "Size is now:", goldy:getSize() )  -- 0
 goldy:sing()
