@@ -7,6 +7,20 @@ local Potato = {
    size=1
 }
 
+-- Helper function for type validation
+local function validateNumber(value, name)
+   if type(value) ~= "number" then
+      error(string.format("%s must be a number, got %s", name or "Value", type(value)))
+   end
+   return true
+end
+
+local function validateString(value, name)
+   if type(value) ~= "string" then
+      error(string.format("%s must be a string, got %s", name or "Value", type(value)))
+   end
+   return true
+end
 
 --This is our constructor method.
 --We call this method when we want to return a new instance (object) of our Potato (from above).
@@ -15,6 +29,20 @@ function Potato:new( ... )
    --First we'll make a local table. This will eventually be our new potato instance.
    --Let's assign the passed arguments(...) as its value or else emptiness.
    local newSpud = ... or {}
+   
+   -- Validate input if provided
+   if type(newSpud) ~= "table" then
+      error("Constructor argument must be a table or nil")
+   end
+   
+   -- Validate specific properties if they exist
+   if newSpud.size and not (type(newSpud.size) == "number" and newSpud.size >= 0) then
+      error("Size must be a non-negative number")
+   end
+   
+   if newSpud.type and type(newSpud.type) ~= "string" then
+      error("Type must be a string")
+   end
 
    --The Tricky bit. We need to assign our newSpud to have a metatable.
    --Essentially, passing 'self' means our newSpud inherits a copy of the same methods as Potato (from above).
@@ -38,6 +66,11 @@ end
 --Pass a value argument (known here as the amount parameter) to increase the size property.
 --This method also returns the new size value.
 function Potato:grow( amount )
+   validateNumber(amount, "Growth amount")
+   if amount < 0 then
+      error("Growth amount must be positive")
+   end
+   
    self.size = self.size + amount
    return self.size
 end
@@ -47,6 +80,11 @@ end
 --If you try to reduce the size more than is available then you'll get an error.
 --This method also returns the new size value.
 function Potato:shrink( amount )
+   validateNumber(amount, "Shrink amount")
+   if amount < 0 then
+      error("Shrink amount must be positive")
+   end
+   
    if amount > self.size then
       error( "You tried to shrink too much. I just can't do it, captain!" )
    else
@@ -68,6 +106,11 @@ end
 --Pass a string argument (known as realName parameter) to assign a value to the name property.
 --This method doesn't return anything, but it annoints us with its life tale so far.
 function Potato:giveName( realName )
+   validateString(realName, "Name")
+   if string.len(string.gsub(realName, "%s+", "")) == 0 then
+      error("Name cannot be empty or just whitespace")
+   end
+   
    self.name = realName
    print("The name's " .. self.name .. " ... " .. self.name .. " Potatoson.")
    print("I'm from the " .. self.type .. " family of potatoes.")
@@ -86,6 +129,23 @@ function Potato:sing()
       print("1 potato, 2 potato, 3 potato, 4...")
       print("5 potato, 6 potato, 7 potato, more!")
    end
+end
+
+-- New method: toString for better object inspection
+function Potato:toString()
+   local name = self.name and (" named " .. self.name) or ""
+   return string.format("Potato%s (type: %s, size: %g)", name, self.type, self.size)
+end
+
+-- New method: clone for deep copying
+function Potato:clone()
+   local copy = {}
+   for key, value in pairs(self) do
+      if type(value) ~= "function" then -- Don't copy methods
+         copy[key] = value
+      end
+   end
+   return self:new(copy)
 end
 
 
